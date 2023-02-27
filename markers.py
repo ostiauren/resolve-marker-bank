@@ -106,6 +106,7 @@ class EditableTreeviewDemoApp:
         self.pycombo.set(current_timeline_index)
 
     def _connect_to_resolve(self):
+        print ("Connecting to Resolve")
         self.resolveApp = resolve.resolveObject
         print ("Resolve version:", self.resolveApp.GetVersion())
 

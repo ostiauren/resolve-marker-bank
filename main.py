@@ -2,24 +2,18 @@ from PyQt5 import QtWidgets, uic
 import sys
 import qdarkstyle
 from terminal import resolve
-import pathlib
 import uuid
 import os
 import ast
 from utils import *
+import globals
+globals.init()
 
-PROJECT_PATH = pathlib.Path(__file__).parent
-PROJECT_UI = PROJECT_PATH / "markers.ui"
-
-bank_id_marker_name = "BANK_ID_MARKER - DO NOT EDIT"
-
-databaseRoot = "/pool/resolve"
-databaseFolder = "marker_banks"
-
+ui_file = 'Qt_main.ui'
 
 def update_database(timelineFolder, markers):
     #Make database folder if we dont have one
-    databaseLocation = databaseRoot + "/" + databaseFolder
+    databaseLocation = globals.databaseRoot + "/" + globals.databaseFolder
     if not os.path.exists(databaseLocation):
         os.makedirs(databaseLocation)
 
@@ -28,10 +22,10 @@ def update_database(timelineFolder, markers):
         os.makedirs((timelineFolder))
 
     # Get UUID of marker with ban_id_maker_name string
-    marker_index = list(dict_extract('name', markers)).index(bank_id_marker_name)
+    marker_index = list(dict_extract('name', markers)).index(globals.bank_id_marker_name)
     markerUUID = markers[marker_index]['customData']
 
-    # Check if an existing maker set exist and if so, is it different.
+    # Check if an existing maker set exist and if so,get it different.
     filepath = timelineFolder + "/" + markerUUID
     if not os.path.exists(filepath):
         print ("No marker set for this timeline exist. Adding to database.")
@@ -49,7 +43,7 @@ def update_database(timelineFolder, markers):
 class Ui(QtWidgets.QMainWindow):
     def __init__(self):
         super(Ui, self).__init__()
-        uic.loadUi('Qt_main.ui', self)
+        uic.loadUi(ui_file, self)
         self.show()
 
         self.config_callbacks()
@@ -167,7 +161,7 @@ class Ui(QtWidgets.QMainWindow):
     def get_markers(self):
         #Get markers and update customData if it's empty
         markers = self.timeline.GetMarkers()
-
+        print (markers)
         #Add UUID to Custom Data field if empty
         for i in markers:
             if markers[i]['customData'] == '':
@@ -180,7 +174,7 @@ class Ui(QtWidgets.QMainWindow):
         if not bool(markers):
             self.add_bank_id_marker(0)
         else:    
-            if bank_id_marker_name not in list(dict_extract('name', markers)):
+            if globals.bank_id_marker_name not in list(dict_extract('name', markers)):
                 for count, i in enumerate(markers):
                     if count < i:
                         self.add_bank_id_marker(count)
@@ -201,7 +195,7 @@ class Ui(QtWidgets.QMainWindow):
         markers = self.timeline.GetMarkers()
 
         # Don't count bank_id_marker_name marker if it excists 
-        if bank_id_marker_name not in list(dict_extract('name', self.timeline.GetMarkers())):
+        if globals.bank_id_marker_name not in list(dict_extract('name', self.timeline.GetMarkers())):
             self.tableWidget.setRowCount(len(self.markers))
         else:
             self.tableWidget.setRowCount(len(self.markers)-1)
@@ -209,7 +203,7 @@ class Ui(QtWidgets.QMainWindow):
         timeline_framerate =  self.timeline.GetSetting('timelineFrameRate')
 
         for row, i in enumerate(self.markers):
-            if self.markers[i]['name'] != bank_id_marker_name:  
+            if self.markers[i]['name'] != globals.bank_id_marker_name:  
                 self.tableWidget.setItem(row-1, 0, QtWidgets.QTableWidgetItem(frames_to_tc(i, timeline_framerate)))
                 self.tableWidget.setItem(row-1, 1, QtWidgets.QTableWidgetItem(frames_to_tc(self.markers[i]['duration'], timeline_framerate)))
                 self.tableWidget.setItem(row-1, 2, QtWidgets.QTableWidgetItem(self.markers[i]['name']))

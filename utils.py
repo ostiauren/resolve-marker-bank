@@ -1,4 +1,6 @@
-bank_id_marker_name = "BANK_ID_MARKER - DO NOT EDIT"
+#bank_id_marker_name = "BANK_ID_MARKER - DO NOT EDIT"
+
+import globals
 
 
 def frames_to_tc(frames, tc_base):
@@ -42,7 +44,7 @@ class marker_set():
         else:
             print("Markers from file")
             info_marker_key = list(dict_extract(
-                'name', input_marker_set)).index(bank_id_marker_name)
+                'name', input_marker_set)).index(globals.bank_id_marker_name)
 
             self.marker_set_info = input_marker_set[info_marker_key]
             self.marker_set = input_marker_set
@@ -51,25 +53,30 @@ class marker_set():
         # print ("self.marker_set_info", self.marker_set_info)
         # print ("self.marker_set", self.marker_set)
 
+    def marker_info_dict():
+        mydict = {
+            'marker_start': 0,
+            #'marker_color': 'Red',
+            #'marker_duration': 1,
+            'marker_set_name': 'VFX',
+            #'name': 'BANK_ID_MARKER - DO NOT EDIT',
+            'marker_set_uuid': '342f870e-3e4e-47b5-805f-e5c0852b5b9d',
+            'timebase': '24',
+            }
+
     def get_set(self):
         return self.marker_set
 
     def get_list(self):
-        # for count, i in self.marker_set:
         marker_set_list = []
-        timeline_framerate = 24
-
         for row, i in enumerate(self.marker_set):
-
-            marker_set_list.append("%s,%s,%s,%s,%s,%s" % (
+            marker_set_list.append ((
                 i,
                 self.marker_set[i]['duration'],
                 self.marker_set[i]['name'],
                 self.marker_set[i]['note'],
                 self.marker_set[i]['color'],
-                self.marker_set[i]['customData']
-            ))
-
+                self.marker_set[i]['customData']))
         return marker_set_list
 
     def get_set_info(self):
@@ -121,12 +128,14 @@ my_markers_resolve={0: {'color': 'Red', 'duration': 1, 'note': 'VFX', 'name': 'B
 my_markers_tmp={5197: {'color': 'Blue', 'duration': 1, 'note': '', 'name': 'Marker 2', 'customData': '4072054c-67b9-4923-bd2b-80f69daf7804'}, 6407: {'color': 'Blue', 'duration': 1, 'note': '',
     'name': 'Marker 3', 'customData': '3de75f15-a6e3-41d9-a6de-c198d974f85a'}, 7417: {'color': 'Blue', 'duration': 1, 'note': '', 'name': 'Marker 4', 'customData': 'efa3101f-ee54-490c-9aa1-1ae32854c2b9'}}
 my_markers_file={'name': 'VFX', 'idx': 0, 'set': my_markers_tmp}
-# a = marker_set(my_markers_resolve)
-marker_set=marker_set(my_markers_file)
+
+#globals.init()
+#marker_set = marker_set(my_markers_resolve)
+#marker_set=marker_set(my_markers_file)
 
 #print("+++++", marker_set.get_set())
-print("+++++", marker_set.get_list())
-# print ("+++++", marker_set.get_set_info())
+#print("+++++", marker_set.get_list())
+#print ("+++++", marker_set.get_set_info())
 # print ("+++++", marker_set.get_marker_list())
 # marker_set.update_name(5197, 'This is the end')
 # print ("=======", marker_set.get_set())

@@ -5,8 +5,9 @@ from terminal import resolve
 import pathlib
 import uuid
 import os
-import json
 import ast
+from utils import *
+
 PROJECT_PATH = pathlib.Path(__file__).parent
 PROJECT_UI = PROJECT_PATH / "markers.ui"
 
@@ -44,25 +45,6 @@ def update_database(timelineFolder, markers):
             print ("Marker set is NOT the same as in database. Updating marker set.")
             # Write code to backup and update markers
 
-def frames_to_tc (frames, tc_base):
-    hours = int(frames / (3600 * tc_base))
-    minutes = int(frames / (60 * tc_base) % 60)
-    seconds = int(frames / tc_base % 60)
-    frames = int(frames % tc_base)
-    return "%02d:%02d:%02d:%02d" % (hours, minutes, seconds, frames)
-
-def dict_extract(key, var):
-    if hasattr(var,'items'):
-        for k, v in var.items():
-            if k == key:
-                yield v
-            if isinstance(v, dict):
-                for result in dict_extract(key, v):
-                    yield result
-            elif isinstance(v, list):
-                for d in v:
-                    for result in dict_extract(key, d):
-                        yield result
 
 class Ui(QtWidgets.QMainWindow):
     def __init__(self):
@@ -240,6 +222,8 @@ class Ui(QtWidgets.QMainWindow):
                 # Update bank label
                 #self.bank_label.configure(text = self.markers[i]['note'])
                 pass
+
+
 
 
 app = QtWidgets.QApplication(sys.argv)

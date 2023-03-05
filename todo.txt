@@ -1,5 +1,71 @@
 TODO
 
+Make a "Setup" button that pops up a setup window
+    Add fields for configuring database destination, auto connect behaviour, ask before overwriting markers in timeline etc.
+    The config data shuld be stored in a config file, so we need to make code for reading and writing such a file. Proabably store it as a dict or json.
+    Figure out where it's best to store this file on Linux, Mac and Windows respectively
+    Filds:  Display Custom fields (hidden setting that does not show in GUI)
+            Database base folder
+            Autoconnect behaviour
+            Ask before writing files to Resolve
+            Ask before overwriting files to database
+            Default to edit fields or not.
 
-FileNotFoundError: [Errno 2] No such file or directory: '/pool/resolve'
+Write code so that this does not happen:
+    FileNotFoundError: [Errno 2] No such file or directory: '/pool/resolve'
+
+Write files to database that are a combination of markers and marker_set_info
+
+Add a display of the timeline UUID of the selected timeline
+
+Ability to load markers from the database and copy it into the timeline.
+
+Write code to backup and update markers
+    Make a copy of the marker file in the database if it's being overwritten by a new one
+
+Make a "Connect to" button that pops up a requester where you can put in a IP to connect to remote resolve_version
+    Also make this requester pop-up automatically on startup, exept if we're running from within Resolve
+
+In the table, make a pulldown menu for the colors
+
+Finish the pulldown menu for the marker sets.
+    List available sets
+    Load selected set into resolve, and save the old set to the database
+    add a "New set" button, and a pop up window for giving the new set a name
+
+Add checkbox field to the table so we can select several rows and delete them.
+
+Button for adding a marker
+    Check that the Start frame is not allready in use (make a popup to tell that it can not be done)
+    
+
+If the current set in Resolve does not have a name, pop up a window for giving it a name
+
+For debugging purposes, it might be an idea to add the timeline name to the markers file in the database
+    Maybe do the same on the folders and subfolders for project and timeline respectively. We'll only read the UUID part. If the project or
+    Timeline name has changed we'll just rename the folders/files.
+
+Make a GUI checkbox for enabling editing of fields in the table.
+
+Make code for updating the marker_set from the table.
+    This will need a tc_to_frame method.
+    We may need code to check that makers has not been updated in Resolve in the meantime.
+    Handle if we're overwriting or discarding the edited marks.
+    Later we can make code to merge, but that means we hve to handle marks that has the same frame index
+
+
+Make a button for toggling between displaying TC or frames in the Start and Duration fields.
+
+Make sure that the timebase variable we use is updateed whenever we change a timeline.
+
+Copy/moving marker sets:
+    Copying marker from a different timeline marker set to the current timeline.
+    Saving currenty loaed marker set to a different timeline.
+
+Exeption handling
+    If no database wasfound
+    Corrupted or unexspected content of files
+    Several marker banks might have the same name since we're using UUID
+    Handling unexected timline marker sets (if the timeline belinging to it has been delereted)
+    Could not connect to a Resolve
 

@@ -1,66 +1,56 @@
 from PyQt5 import QtWidgets, uic
 import sys
 import qdarkstyle
-from terminal import resolve
-import uuid
-import os
-import ast
 from utils import *
-
 import globals
 globals.init()
 
-ui_file = 'Qt_main.ui'
+main_widow_ui = 'Qt_main.ui'
+dialog_input = 'Qt_dialog_input.ui'
 
-def update_database(timelineFolder, markers):
-    #Make database folder if we dont have one
-    databaseLocation = globals.databaseRoot + "/" + globals.databaseFolder
-    if not os.path.exists(databaseLocation):
-        os.makedirs(databaseLocation)
+class dialog_text_input(QtWidgets.QDialog): 
+    def __init__(self, main):
+        self.main = main
+        QtWidgets.QDialog.__init__(self) #(self, parent)
+        uic.loadUi(dialog_input, self)
+        button_1 = self.button_1
+        button_1.clicked.connect(self.button_1_callback)
+        button_2 = self.button_2
+        button_2.clicked.connect(self.button_2_callback)
 
-    timelineFolder = databaseLocation + "/" + timelineFolder
-    if not os.path.exists(timelineFolder):
-        os.makedirs((timelineFolder))
+    def button_1_callback(self):
+        print ("DO SOMETHING IN THE PARENT CLASS - example:", self.main.rc.project.GetName())
 
-    for i in markers:
-        if markers[i]['name'] == globals.bank_id_marker_name:
-            markerUUID = markers[i]['customData']
-            break
-    
-    # Check if an existing maker set exist and if so,get it different.
-    filepath = timelineFolder + "/" + markerUUID
-    if not os.path.exists(filepath):
-        print ("No marker set for this timeline exist. Adding to database.")
-        with open(filepath, 'w') as file:
-            file.write(str(markers))
-    else:
-        file_markers = ast.literal_eval(open(filepath).read())
-        if file_markers == markers:
-            print ("Maker set is the same as in database. No update made.")
-        else:
-            print ("Marker set is NOT the same as in database. Updating marker set.")
-            # Write code to backup and update markers
+    def button_2_callback(self):
+        self.close()
 
 
 class Ui(QtWidgets.QMainWindow):
     def __init__(self):
         super(Ui, self).__init__()
-        uic.loadUi(ui_file, self)
+        uic.loadUi(main_widow_ui, self)
         self.show()
-
+        self.setWindowTitle("Resolve Marker Bank")
+        
         self.config_callbacks()
-        self.set_column_width()
+        self.qt_overrides()
 
         self.rc = resolve_connection()
-        self.project = self.rc.project
+
+        self.project_changed()
+
         self.timeline = self.rc.project.GetCurrentTimeline()
-
-        self.marker_set = marker_set()
-        self.marker_set.input_marker_set(self.rc.get_markers())
-
+        self.get_markers_wrapper()
+        
         self.timeline_selected()
 
 
+    def project_changed(self):
+        self.project = self.rc.project
+        self.project_uuid = self.rc.project.GetUniqueId() 
+        self.project_name = self.rc.project.GetName() 
+        self.project_name_label.setText(self.project_name)
+        self.project_uuid_label.setText(self.project_uuid)
 
     def timeline_selected(self):
         self.update_table()
@@ -68,7 +58,7 @@ class Ui(QtWidgets.QMainWindow):
 
         # Write timeline to database
         selected_timeline_uuid = self.timeline.GetUniqueId()
-        update_database(selected_timeline_uuid, self.marker_set.get_marker_set_for_resolve())
+        update_database(selected_timeline_uuid, self.marker_set.get_marker_set_for_database())
 
     def config_callbacks(self):
         testButton = self.testButton
@@ -78,14 +68,46 @@ class Ui(QtWidgets.QMainWindow):
         self.bankCombo = self.bankCombo
         self.bankCombo.activated[int].connect(self.callback_bankCombo)
 
+  
+    def popup_dialog(self, dialog_name, label, button_text_1, button_text_2):
+        dialog = dialog_text_input(self)
+        dialog.text_label.setText(label)
+        dialog.button_1.setText(button_text_1)
+        dialog.button_2.setText(button_text_2)
+        dialog.exec_()
+        dialog.deleteLater()
+ 
     def callback_test_button(self):
         print ("Pushed")
+        self.popup_dialog("Name Marker Set", "This timeline has a unnamed marker set.\nPlease give it a name.", 'OK', 'Cancel')
+
+
+    def get_markers_wrapper(self, selectedIndex=None):
+        self.marker_set = marker_set()
+        if selectedIndex == None:
+            timeline_markers = self.rc.get_markers()
+        else:
+            timeline_markers = self.rc.get_markers(selectedIndex+1)
+        if timeline_markers == None: #If the selected timeline does not have a marker_bank_id
+
+            self.popup_dialog("Name Marker Set", "This timeline has a unnamed marker set.\nPlease give it a name.", 'OK', 'Cancel')
+
+
+            self.rc.add_bank_id() # Make bank_marker
+        
+
+        if selectedIndex == None:
+            timeline_markers = self.rc.get_markers()
+        else:
+            timeline_markers = self.rc.get_markers(selectedIndex+1)
+        
+        self.marker_set.input_marker_set(timeline_markers, self.project_uuid)        
+
+
 
     def callback_timelineCombo(self, selectedIndex,):
-        print ("callback_timelineCombo - Selected", selectedIndex)
         self.timeline = self.project.GetTimelineByIndex(selectedIndex+1)
-        self.marker_set = marker_set()
-        self.marker_set.input_marker_set(self.rc.get_markers(selectedIndex+1))
+        self.get_markers_wrapper(selectedIndex+1)
         self.timeline_selected()
 
     def callback_bankCombo(self, selectedIndex,):
@@ -105,7 +127,7 @@ class Ui(QtWidgets.QMainWindow):
         # Update combobox with timelines
         for i in timelines:
             if i[0] == current_timeline_index:
-                options.append("%s - Current Timeline" % i[1].GetName())
+                options.append("%s *" % i[1].GetName())
                 selected_index = i[0]
             else:
                 options.append("%s" % i[1].GetName())
@@ -117,11 +139,17 @@ class Ui(QtWidgets.QMainWindow):
         selelcted_timeline_index = [index for (index, timelines) in enumerate(timelines) if timelines[2]==selected_timeline_uuid][0]
         self.timelineCombo.setCurrentIndex(selelcted_timeline_index)
         
-    def set_column_width(self):
+        self.timeline_uuid_label.setText(selected_timeline_uuid)
+        
+
+    def qt_overrides(self):
         widths = [100, 100, 150, 200, 80, 300]
         for i in range(len(widths)):
             self.tableWidget.setColumnWidth(i, widths[i])
-
+        
+        self.timeline_uuid_label.setStyleSheet("QLabel {color: rgb(84, 104, 122);}")
+        self.marker_set_uuid_label.setStyleSheet("QLabel {color: rgb(84, 104, 122);}")
+        self.project_uuid_label.setStyleSheet("QLabel {color: rgb(84, 104, 122);}")
     def update_table(self):
         # Delete all current rows
         for i in reversed(range(self.tableWidget.rowCount())):

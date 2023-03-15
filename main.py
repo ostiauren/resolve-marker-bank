@@ -87,7 +87,7 @@ class Ui(QtWidgets.QMainWindow):
         if selectedIndex == None:
             timeline_markers = self.rc.get_markers()
         else:
-            timeline_markers = self.rc.get_markers(selectedIndex+1)
+            timeline_markers = self.rc.get_markers(selectedIndex)
         if timeline_markers == None: #If the selected timeline does not have a marker_bank_id
 
             self.popup_dialog("Name Marker Set", "This timeline has a unnamed marker set.\nPlease give it a name.", 'OK', 'Cancel')
@@ -99,18 +99,20 @@ class Ui(QtWidgets.QMainWindow):
         if selectedIndex == None:
             timeline_markers = self.rc.get_markers()
         else:
-            timeline_markers = self.rc.get_markers(selectedIndex+1)
+            timeline_markers = self.rc.get_markers(selectedIndex)
         
         self.marker_set.input_marker_set(timeline_markers, self.project_uuid)        
 
 
 
     def callback_timelineCombo(self, selectedIndex,):
-        self.timeline = self.project.GetTimelineByIndex(selectedIndex+1)
-        self.get_markers_wrapper(selectedIndex+1)
+        selectedIndex += 1  # Plus one on selectedIndex because Resolves timeline index starts on 1 not 0
+        self.timeline = self.project.GetTimelineByIndex(selectedIndex)
+        self.get_markers_wrapper(selectedIndex)
         self.timeline_selected()
 
     def callback_bankCombo(self, selectedIndex,):
+        selectedIndex += 1  # Plus one on selectedIndex because Resolves timeline index starts on 1 not 0
         print ("callback_bankCombo - Selected", selectedIndex)
         #self.timeline = self.project.GetTimelineByIndex(selectedIndex+1)
 

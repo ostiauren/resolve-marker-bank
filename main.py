@@ -74,6 +74,7 @@ class Ui(QtWidgets.QMainWindow):
         dialog.text_label.setText(label)
         dialog.button_1.setText(button_text_1)
         dialog.button_2.setText(button_text_2)
+        dialog.lineEdit.setText(self.marker_set.get_set_name())
         dialog.exec_()
         dialog.deleteLater()
  

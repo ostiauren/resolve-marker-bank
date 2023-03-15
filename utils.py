@@ -187,6 +187,9 @@ class marker_set:
     def get_set_info(self):
         return self.marker_set_info
 
+    def get_set_name(self):
+        return self.marker_set_info['name']
+
     def update_name(self, frame, name):
         self.markers[frame].update({'name': name})
 

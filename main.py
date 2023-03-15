@@ -61,8 +61,8 @@ class Ui(QtWidgets.QMainWindow):
         update_database(selected_timeline_uuid, self.marker_set.get_marker_set_for_database())
 
     def config_callbacks(self):
-        testButton = self.testButton
-        testButton.clicked.connect(self.callback_test_button)
+        renameMarkerSetButton = self.renameMarkerSetButton
+        renameMarkerSetButton.clicked.connect(self.callback_test_button)
         self.timelineCombo = self.timelineCombo
         self.timelineCombo.activated[int].connect(self.callback_timelineCombo)
         self.bankCombo = self.bankCombo
@@ -152,10 +152,15 @@ class Ui(QtWidgets.QMainWindow):
         self.timeline_uuid_label.setStyleSheet("QLabel {color: rgb(84, 104, 122);}")
         self.marker_set_uuid_label.setStyleSheet("QLabel {color: rgb(84, 104, 122);}")
         self.project_uuid_label.setStyleSheet("QLabel {color: rgb(84, 104, 122);}")
+        self.marker_set_name_label.setStyleSheet("QLabel {color: rgb(84, 104, 122);}")
+
     def update_table(self):
         # Delete all current rows
         for i in reversed(range(self.tableWidget.rowCount())):
             self.tableWidget.removeRow(i)
+
+        # Update marker name label
+        self.marker_set_name_label.setText(self.marker_set.get_set_name()) 
 
         timeline_framerate =  self.timeline.GetSetting('timelineFrameRate')
         markers = self.marker_set.get_markers_as_list()

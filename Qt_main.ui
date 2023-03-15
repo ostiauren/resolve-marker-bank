@@ -64,17 +64,17 @@
      </rect>
     </property>
    </widget>
-   <widget class="QPushButton" name="testButton">
+   <widget class="QPushButton" name="renameMarkerSetButton">
     <property name="geometry">
      <rect>
       <x>30</x>
       <y>510</y>
-      <width>84</width>
+      <width>151</width>
       <height>28</height>
      </rect>
     </property>
     <property name="text">
-     <string>Test</string>
+     <string>Rename marker set</string>
     </property>
    </widget>
    <widget class="QComboBox" name="bankCombo">
@@ -153,6 +153,19 @@
      <set>Qt::AlignCenter</set>
     </property>
    </widget>
+   <widget class="QLabel" name="marker_set_name_label">
+    <property name="geometry">
+     <rect>
+      <x>202</x>
+      <y>510</y>
+      <width>301</width>
+      <height>20</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>marker_set_name_label</string>
+    </property>
+   </widget>
   </widget>
   <widget class="QMenuBar" name="menubar">
    <property name="geometry">
@@ -160,7 +173,7 @@
      <x>0</x>
      <y>0</y>
      <width>990</width>
-     <height>22</height>
+     <height>25</height>
     </rect>
    </property>
   </widget>

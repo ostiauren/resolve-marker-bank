@@ -103,7 +103,7 @@ class resolve_connection():
         else:
             return self.timeline.GetMarkers()
 
-    def add_bank_id(self, idx = None):
+    def add_bank_id(self):
         markers = self.timeline.GetMarkers()
         # Add bank_id_marker to the timeline. If timeline does not have any markers add one the first available frame 
         if globals.bank_id_marker_name not in list(dict_extract('name', markers)):
@@ -117,6 +117,9 @@ class resolve_connection():
 
         #Get updated markers and set heading label on GUI
         return self.timeline.GetMarkers()
+
+    def rename_bank_id(self, new_name):
+        print ("Rename marker to:", new_name)
 
 def get_current_timeline(self):
     self.timeline = self.project.GetCurrentTimeline()

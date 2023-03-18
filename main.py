@@ -19,7 +19,8 @@ class dialog_text_input(QtWidgets.QDialog):
         button_2.clicked.connect(self.button_2_callback)
 
     def button_1_callback(self):
-        print ("DO SOMETHING IN THE PARENT CLASS - example:", self.main.rc.project.GetName())
+        self.main.rc.rename_bank_id(self.lineEdit.text())
+        self.close()
 
     def button_2_callback(self):
         self.close()

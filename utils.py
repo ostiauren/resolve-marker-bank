@@ -15,13 +15,23 @@ def update_database(timelineFolder, marker_set):
 
     #Make timeline folder (all parent folders will be made if they don't exist)
     timelineFolder = databaseLocation + "/" + marker_set['project_uuid'] + "/" + timelineFolder
-    Path(timelineFolder).mkdir(parents=True, exist_ok=True)
     
+    try:
+        Path(timelineFolder).mkdir(parents=True, exist_ok=True)
+        print("folder '{}' created ".format(timelineFolder))
+    except FileExistsError:
+        print("folder {} already exists".format(timelineFolder))
+
+
     filePath = timelineFolder + "/" + marker_set_UUID
     if not os.path.isfile(filePath):
         print ("No marker set for this timeline exist. Adding to database.")
-        with open(timelineFolder + "/" + marker_set_UUID, 'w') as file:
-            file.write(str(marker_set))
+        try:
+            with open(timelineFolder + "/" + marker_set_UUID, 'w') as file:
+                file.write(str(marker_set))
+        except FileNotFoundError:
+            print("No such {} file or directory.".format(timelineFolder))
+            sys.exit()
     else:
         file_markers = ast.literal_eval(open(filePath).read())
         if file_markers == marker_set:

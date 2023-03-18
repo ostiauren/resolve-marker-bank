@@ -9,8 +9,9 @@ main_widow_ui = 'Qt_main.ui'
 dialog_input = 'Qt_dialog_input.ui'
 
 class dialog_text_input(QtWidgets.QDialog): 
-    def __init__(self, main):
+    def __init__(self, main, marker_uuid = None):
         self.main = main
+        self.marker_uuid = marker_uuid
         QtWidgets.QDialog.__init__(self) #(self, parent)
         uic.loadUi(dialog_input, self)
         button_1 = self.button_1
@@ -19,7 +20,10 @@ class dialog_text_input(QtWidgets.QDialog):
         button_2.clicked.connect(self.button_2_callback)
 
     def button_1_callback(self):
-        self.main.rc.rename_bank_id(self.lineEdit.text())
+        if self.main.rc.rename_bank_id(self.lineEdit.text(), self.main.marker_set.get_set_info()):
+            # Get updated markers and update the interface
+            self.main.get_markers_wrapper()
+            self.main.timeline_selected()
         self.close()
 
     def button_2_callback(self):
@@ -85,7 +89,6 @@ class Ui(QtWidgets.QMainWindow):
         print ("Pushed")
         self.popup_dialog("Name Marker Set", "This timeline has a unnamed marker set.\nPlease give it a name.", 'OK', 'Cancel')
 
-
     def get_markers_wrapper(self, selectedIndex=None):
         self.marker_set = marker_set()
         if selectedIndex == None:
@@ -93,21 +96,12 @@ class Ui(QtWidgets.QMainWindow):
         else:
             timeline_markers = self.rc.get_markers(selectedIndex)
         if timeline_markers == None: #If the selected timeline does not have a marker_bank_id
-
-            self.popup_dialog("Name Marker Set", "This timeline has a unnamed marker set.\nPlease give it a name.", 'OK', 'Cancel')
-
-
             self.rc.add_bank_id() # Make bank_marker
-        
-
         if selectedIndex == None:
             timeline_markers = self.rc.get_markers()
         else:
             timeline_markers = self.rc.get_markers(selectedIndex)
-        
         self.marker_set.input_marker_set(timeline_markers, self.project_uuid)        
-
-
 
     def callback_timelineCombo(self, selectedIndex,):
         selectedIndex += 1  # Plus one on selectedIndex because Resolves timeline index starts on 1 not 0

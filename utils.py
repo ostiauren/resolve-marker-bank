@@ -119,7 +119,7 @@ class resolve_connection():
         if globals.bank_id_marker_name not in list(dict_extract('name', markers)):
             for count, i in enumerate(markers):
                 if count < i:
-                    if self.timeline.AddMarker(count, 'Red', globals.bank_id_marker_name, 'VFX', 1, str(uuid.uuid4())):
+                    if self.timeline.AddMarker(count, 'Red', globals.bank_id_marker_name, globals.default_new_marker_set_name, 1, str(uuid.uuid4())):
                         print ("A bank ID marker was added")
                     else:
                         print ("A bank ID could not be added") 
@@ -128,8 +128,19 @@ class resolve_connection():
         #Get updated markers and set heading label on GUI
         return self.timeline.GetMarkers()
 
-    def rename_bank_id(self, new_name):
-        print ("Rename marker to:", new_name)
+    def rename_bank_id(self, new_name, marker_set_info):
+        if new_name == marker_set_info['name']:
+            print ("The new marker set name ('%s') is the same as the old. No change made." % new_name)
+            return
+        else:
+            print ("Renameing the marker set from '%s' to '%s'." % (marker_set_info['name'], new_name))
+            set_marker = self.timeline.GetMarkerByCustomData(marker_set_info['uuid'])
+            set_marker['note'] = new_name
+            if self.timeline.DeleteMarkerByCustomData(marker_set_info['uuid']):
+                print ("Marker deleted")
+            if self.timeline.AddMarker(marker_set_info['position'], set_marker['color'], set_marker['name'], set_marker['note'], set_marker['duration'], set_marker['customData']):
+                print ("Marker added")
+            return True
 
 def get_current_timeline(self):
     self.timeline = self.project.GetCurrentTimeline()

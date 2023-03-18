@@ -59,11 +59,15 @@ class Ui(QtWidgets.QMainWindow):
 
     def timeline_selected(self):
         self.update_table()
-        self.update_combo()
+        self.update_timeline_combo()
+
 
         # Write timeline to database
         selected_timeline_uuid = self.timeline.GetUniqueId()
         update_database(selected_timeline_uuid, self.marker_set.get_marker_set_for_database())
+
+        self.update_marker_set_combo()
+
 
     def config_callbacks(self):
         renameMarkerSetButton = self.renameMarkerSetButton
@@ -89,6 +93,7 @@ class Ui(QtWidgets.QMainWindow):
         print ("Pushed")
         self.popup_dialog("Name Marker Set", "This timeline has a unnamed marker set.\nPlease give it a name.", 'OK', 'Cancel')
 
+
     def get_markers_wrapper(self, selectedIndex=None):
         self.marker_set = marker_set()
         if selectedIndex == None:
@@ -103,6 +108,8 @@ class Ui(QtWidgets.QMainWindow):
             timeline_markers = self.rc.get_markers(selectedIndex)
         self.marker_set.input_marker_set(timeline_markers, self.project_uuid)        
 
+
+
     def callback_timelineCombo(self, selectedIndex,):
         selectedIndex += 1  # Plus one on selectedIndex because Resolves timeline index starts on 1 not 0
         self.timeline = self.project.GetTimelineByIndex(selectedIndex)
@@ -114,7 +121,24 @@ class Ui(QtWidgets.QMainWindow):
         print ("callback_bankCombo - Selected", selectedIndex)
         #self.timeline = self.project.GetTimelineByIndex(selectedIndex+1)
 
-    def update_combo(self):
+    def update_marker_set_combo(self):
+        selected_timeline_uuid = self.timeline.GetUniqueId()
+        options = []
+        database_marker_sets = get_database_marker_sets(selected_timeline_uuid, self.marker_set.get_marker_set_for_database())
+        current_set_uuid = self.marker_set.get_set_info()['uuid']
+
+        for i in database_marker_sets:
+            if i == current_set_uuid:
+                options.append("%s *" % i[1])
+            else:
+                options.append("%s" % i[1])
+        self.bankCombo.addItems(options)
+
+        # Select current set in combobox
+        selelcted_set_index = [index for (index, marker_set) in enumerate(database_marker_sets[0]) if marker_set==current_set_uuid][0]
+        self.bankCombo.setCurrentIndex(selelcted_set_index)
+
+    def update_timeline_combo(self):
         timelines = self.rc.timelines_list()
         self.timelineCombo.clear()
         options = []
@@ -123,12 +147,12 @@ class Ui(QtWidgets.QMainWindow):
         current_timeline_uuid = self.project.GetCurrentTimeline().GetUniqueId()
 
         # Current_timeline_index is the timline currently open in Resolve, not the currently selected timeline in the combobox
-        current_timeline_index = [index for (index, timelines) in enumerate(timelines) if timelines[2]==current_timeline_uuid][0]
+        current_timeline_index = [index for (index, timeline) in enumerate(timelines) if timeline[2]==current_timeline_uuid][0]
+        
         # Update combobox with timelines
         for i in timelines:
             if i[0] == current_timeline_index:
                 options.append("%s *" % i[1].GetName())
-                selected_index = i[0]
             else:
                 options.append("%s" % i[1].GetName())
 
@@ -141,16 +165,6 @@ class Ui(QtWidgets.QMainWindow):
         
         self.timeline_uuid_label.setText(selected_timeline_uuid)
         
-
-    def qt_overrides(self):
-        widths = [100, 100, 150, 200, 80, 300]
-        for i in range(len(widths)):
-            self.tableWidget.setColumnWidth(i, widths[i])
-        
-        self.timeline_uuid_label.setStyleSheet("QLabel {color: rgb(84, 104, 122);}")
-        self.marker_set_uuid_label.setStyleSheet("QLabel {color: rgb(84, 104, 122);}")
-        self.project_uuid_label.setStyleSheet("QLabel {color: rgb(84, 104, 122);}")
-        self.marker_set_name_label.setStyleSheet("QLabel {color: rgb(84, 104, 122);}")
 
     def update_table(self):
         # Delete all current rows
@@ -172,7 +186,15 @@ class Ui(QtWidgets.QMainWindow):
             self.tableWidget.setItem(row, 5, QtWidgets.QTableWidgetItem(i[5]))
         self.tableWidget.resizeRowsToContents()
 
-
+    def qt_overrides(self):
+        widths = [100, 100, 150, 200, 80, 300]
+        for i in range(len(widths)):
+            self.tableWidget.setColumnWidth(i, widths[i])
+        
+        self.timeline_uuid_label.setStyleSheet("QLabel {color: rgb(84, 104, 122);}")
+        self.marker_set_uuid_label.setStyleSheet("QLabel {color: rgb(84, 104, 122);}")
+        self.project_uuid_label.setStyleSheet("QLabel {color: rgb(84, 104, 122);}")
+        self.marker_set_name_label.setStyleSheet("QLabel {color: rgb(84, 104, 122);}")
 app = QtWidgets.QApplication(sys.argv)
 window = Ui()
 app.setStyleSheet(qdarkstyle.load_stylesheet())

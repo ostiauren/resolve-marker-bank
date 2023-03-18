@@ -9,7 +9,6 @@ import os
 import ast
 
 def update_database(timelineFolder, marker_set):
-    markers = marker_set['set']
     databaseLocation = globals.databaseRoot + "/" + globals.databaseFolder
     marker_set_UUID = marker_set['uuid']
 
@@ -27,7 +26,7 @@ def update_database(timelineFolder, marker_set):
     if not os.path.isfile(filePath):
         print ("No marker set for this timeline exist. Adding to database.")
         try:
-            with open(timelineFolder + "/" + marker_set_UUID, 'w') as file:
+            with open(timelineFolder + "/" + marker_set_UUID + "." + globals.databaseSetExtention, 'w') as file:
                 file.write(str(marker_set))
         except FileNotFoundError:
             print("No such {} file or directory.".format(timelineFolder))
@@ -40,6 +39,21 @@ def update_database(timelineFolder, marker_set):
             print ("Marker set is NOT the same as in database. Updating marker set.")
             # Write code to backup and update markers
 
+def get_database_marker_sets(timelineFolder, marker_set):
+    databaseLocation = globals.databaseRoot + "/" + globals.databaseFolder
+    timelineFolder = databaseLocation + "/" + marker_set['project_uuid'] + "/" + timelineFolder
+    marker_sets = []
+
+    for filename in os.listdir(timelineFolder):
+        if filename.endswith("." + globals.databaseSetExtention):
+            try:
+                with open(timelineFolder + "/" + filename) as file:
+                    file_content = ast.literal_eval(file.read())
+                    marker_sets.append((file_content['uuid'] ,file_content['name']))
+            except FileNotFoundError:
+                print("No such {} file or directory.".format(timelineFolder + "/" + filename))
+                sys.exit()
+    return marker_sets
 
 def frames_to_tc(frames, tc_base):
     hours = int(frames / (3600 * tc_base))

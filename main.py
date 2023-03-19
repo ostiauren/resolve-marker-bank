@@ -119,9 +119,11 @@ class Ui(QtWidgets.QMainWindow):
     def callback_bankCombo(self, selectedIndex,):
         selectedIndex += 1  # Plus one on selectedIndex because Resolves timeline index starts on 1 not 0
         print ("callback_bankCombo - Selected", selectedIndex)
-        #self.timeline = self.project.GetTimelineByIndex(selectedIndex+1)
+        #self.timeline = self.project.GetTimelineByIndex(selectedIndex+1)  
+        self.update_marker_set_combo()
 
     def update_marker_set_combo(self):
+        self.bankCombo.clear()
         selected_timeline_uuid = self.timeline.GetUniqueId()
         options = []
         database_marker_sets = get_database_marker_sets(selected_timeline_uuid, self.marker_set.get_marker_set_for_database())
@@ -137,6 +139,10 @@ class Ui(QtWidgets.QMainWindow):
         # Select current set in combobox
         selelcted_set_index = [index for (index, marker_set) in enumerate(database_marker_sets[0]) if marker_set==current_set_uuid][0]
         self.bankCombo.setCurrentIndex(selelcted_set_index)
+
+        self.marker_set_uuid_label.setText(selected_timeline_uuid)
+
+    
 
     def update_timeline_combo(self):
         timelines = self.rc.timelines_list()

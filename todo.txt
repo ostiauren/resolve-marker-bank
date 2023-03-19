@@ -11,12 +11,6 @@ Make a "Setup" button that pops up a setup window
             Ask before overwriting files to database
             Default to edit fields or not.
 
-Write code so that this does not happen:
-    FileNotFoundError: [Errno 2] No such file or directory: '/pool/resolve'
-
-Write files to database that are a combination of markers and marker_set_info
-
-Add a display of the timeline UUID of the selected timeline
 
 Ability to load markers from the database and copy it into the timeline.
 
@@ -69,3 +63,15 @@ Exeption handling
     Handling unexected timline marker sets (if the timeline belinging to it has been delereted)
     Could not connect to a Resolve
 
+
+
+
+----Done-----
+
+Write code so that this does not happen:
+    FileNotFoundError: [Errno 2] No such file or directory: '/pool/resolve'
+
+
+Write files to database that are a combination of markers and marker_set_info
+
+Add a display of the timeline UUID of the selected timeline

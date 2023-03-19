@@ -23,7 +23,7 @@ Make a "Connect to" button that pops up a requester where you can put in a IP to
 In the table, make a pulldown menu for the colors
 
 Finish the pulldown menu for the marker sets.
-    List available sets
+    List available sets # done
     Load selected set into resolve, and save the old set to the database
     add a "New set" button, and a pop up window for giving the new set a name
 
@@ -33,7 +33,6 @@ Button for adding a marker
     Check that the Start frame is not allready in use (make a popup to tell that it can not be done)
     
 
-If the current set in Resolve does not have a name, pop up a window for giving it a name
 
 For debugging purposes, it might be an idea to add the timeline name to the markers file in the database
     Maybe do the same on the folders and subfolders for project and timeline respectively. We'll only read the UUID part. If the project or
@@ -75,3 +74,5 @@ Write code so that this does not happen:
 Write files to database that are a combination of markers and marker_set_info
 
 Add a display of the timeline UUID of the selected timeline
+
+If the current set in Resolve does not have a name, pop up a window for giving it a name

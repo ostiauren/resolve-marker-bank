@@ -7,6 +7,8 @@ import uuid
 from pathlib import Path
 import os
 import ast
+import shutil
+import time
 
 def update_database(timelineFolder, marker_set):
     databaseLocation = globals.databaseRoot + "/" + globals.databaseFolder
@@ -20,30 +22,51 @@ def update_database(timelineFolder, marker_set):
         print("folder '{}' created ".format(timelineFolder))
     except FileExistsError:
         print("folder {} already exists".format(timelineFolder))
+    
 
-
-    filePath = timelineFolder + "/" + marker_set_UUID
+    fileName = marker_set_UUID + "." + globals.databaseSetExtention
+    filePath = timelineFolder + "/" + fileName
+    backups_folder = timelineFolder + '/backups'
     if not os.path.isfile(filePath):
         print ("No marker set for this timeline exist. Adding to database.")
+        print (marker_set)
         try:
-            with open(timelineFolder + "/" + marker_set_UUID + "." + globals.databaseSetExtention, 'w') as file:
+            with open(filePath, 'w') as file:
                 file.write(str(marker_set))
         except FileNotFoundError:
             print("No such {} file or directory.".format(timelineFolder))
             sys.exit()
     else:
         file_markers = ast.literal_eval(open(filePath).read())
+        
         if file_markers == marker_set:
             print ("Maker set is the same as in database. No update made.")
         else:
             print ("Marker set is NOT the same as in database. Updating marker set.")
+            # Make backup folder if it does not exsist.
+            
+            try:
+                Path(backups_folder).mkdir(parents=True, exist_ok=True)
+                print("Folder '{}' for backups created or allready exsisted".format(backups_folder))
+            except:
+                print("Folder '{}' for backups could not be created ".format(backups_folder))
+                sys.exit()
+            shutil.move(filePath, backups_folder + "/" +  str(time.time()) + "-" + fileName)
+            try:
+                with open(filePath, 'w') as file:
+                    file.write(str(marker_set))
+            except FileNotFoundError:
+                print("No such {} file or directory.".format(timelineFolder))
+                sys.exit()
             # Write code to backup and update markers
+            
 
-def get_database_marker_sets(timelineFolder, marker_set):
+
+def get_database_marker_sets(projectUUID, timelineUUID):
     databaseLocation = globals.databaseRoot + "/" + globals.databaseFolder
-    timelineFolder = databaseLocation + "/" + marker_set['project_uuid'] + "/" + timelineFolder
+    timelineFolder = databaseLocation + "/" + projectUUID + "/" + timelineUUID
     marker_sets = []
-
+    
     for filename in os.listdir(timelineFolder):
         if filename.endswith("." + globals.databaseSetExtention):
             try:
@@ -54,6 +77,19 @@ def get_database_marker_sets(timelineFolder, marker_set):
                 print("No such {} file or directory.".format(timelineFolder + "/" + filename))
                 sys.exit()
     return marker_sets
+
+def get_database_marker_set(projectUUID, timelineUUID, markerSetUUID):
+    databaseLocation = globals.databaseRoot + "/" + globals.databaseFolder
+    markerSetPath = databaseLocation + "/" + projectUUID + "/" + timelineUUID + "/" + markerSetUUID + "." + globals.databaseSetExtention
+    try:
+        with open(markerSetPath) as file:
+            file_content = ast.literal_eval(file.read())
+    except FileNotFoundError:
+        print("No such {} file or directory.".format(markerSetPath))
+        sys.exit()
+    return file_content
+
+
 
 def frames_to_tc(frames, tc_base):
     hours = int(frames / (3600 * tc_base))
@@ -194,7 +230,7 @@ class marker_set:
             self.markers = input_marker_set
             del self.markers[info_marker_key]
 
-    def get_marker_set_for_resolve(self):
+    def get_marker_set_as_resolve_dict(self):
         bank_marker = {
             'color': globals.bank_marker_color,
             'duration': 1,
@@ -204,7 +240,27 @@ class marker_set:
             }
         self.markers[self.marker_set_info['position']] = bank_marker
         return self.markers
-    
+
+    def get_marker_set_for_resolve(self):
+        info_marker = (
+            self.marker_set_info[0],
+            globals.bank_marker_color,
+            globals.bank_id_marker_name,
+            self.marker_set_info[1],
+            1,
+            self.marker_set_info[2],
+        )
+        marker_set_list = [(info_marker)]
+        for row, i in enumerate(self.markers):
+            marker_set_list.append ((
+                i,
+                self.markers[i]['color'],
+                self.markers[i]['name'],
+                self.markers[i]['note'],
+                self.markers[i]['duration'],
+                self.markers[i]['customData']))
+        return marker_set_list
+
     def get_marker_set_for_database(self):
         database_set = dict(self.marker_set_info)
         database_set['set'] = self.markers

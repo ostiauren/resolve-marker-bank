@@ -61,10 +61,8 @@ class Ui(QtWidgets.QMainWindow):
         self.update_table()
         self.update_timeline_combo()
 
-
-        # Write timeline to database
-        selected_timeline_uuid = self.timeline.GetUniqueId()
-        update_database(selected_timeline_uuid, self.marker_set.get_marker_set_for_database())
+        # Write current timeline markers to database
+        update_database(self.timeline.GetUniqueId(), self.marker_set.get_marker_set_for_database())
 
         self.update_marker_set_combo()
 
@@ -117,30 +115,55 @@ class Ui(QtWidgets.QMainWindow):
         self.timeline_selected()
 
     def callback_bankCombo(self, selectedIndex,):
-        selectedIndex += 1  # Plus one on selectedIndex because Resolves timeline index starts on 1 not 0
-        print ("callback_bankCombo - Selected", selectedIndex)
-        #self.timeline = self.project.GetTimelineByIndex(selectedIndex+1)  
+        self.swap_markers_in_timeline(self.database_marker_sets[selectedIndex][0])
+        self.get_markers_wrapper() # Plus one on selectedIndex because Resolves timeline index starts on 1 not 0 
+        self.timeline_selected()
         self.update_marker_set_combo()
+
+
+    def swap_markers_in_timeline(self, marker_set_uuid):
+        # Write current timeline markers to database
+        update_database(self.timeline.GetUniqueId(), self.marker_set.get_marker_set_for_database())
+
+        # Write current timeline markers to database
+        selected_timeline_uuid = self.timeline.GetUniqueId()
+
+        self.marker_set_from_database = marker_set()
+        self.marker_set_from_database.input_marker_set(get_database_marker_set(self.project_uuid, selected_timeline_uuid, marker_set_uuid), self.project_uuid)  
+        timeline_markers = self.timeline.GetMarkers()  
+        
+        for i in timeline_markers:
+            self.timeline.DeleteMarkerAtFrame(i)
+
+        for markers in self.marker_set_from_database.get_marker_set_for_resolve():
+            if not self.timeline.AddMarker(*markers):
+                print ("A marker could not be updated", markers)
+                sys.exit()
+
 
     def update_marker_set_combo(self):
         self.bankCombo.clear()
         selected_timeline_uuid = self.timeline.GetUniqueId()
         options = []
-        database_marker_sets = get_database_marker_sets(selected_timeline_uuid, self.marker_set.get_marker_set_for_database())
+        self.database_marker_sets = get_database_marker_sets(self.project_uuid, selected_timeline_uuid)
         current_set_uuid = self.marker_set.get_set_info()['uuid']
 
-        for i in database_marker_sets:
-            if i == current_set_uuid:
+        for i in self.database_marker_sets:
+            if i[0] == current_set_uuid:
                 options.append("%s *" % i[1])
             else:
                 options.append("%s" % i[1])
         self.bankCombo.addItems(options)
 
         # Select current set in combobox
-        selelcted_set_index = [index for (index, marker_set) in enumerate(database_marker_sets[0]) if marker_set==current_set_uuid][0]
-        self.bankCombo.setCurrentIndex(selelcted_set_index)
+        #selelcted_set_index = [index for (index, marker_set) in enumerate(self.database_marker_sets[0]) if marker_set==current_set_uuid]#[0]
+        for i, marker_set in enumerate(self.database_marker_sets):
+            if marker_set[0] == current_set_uuid:
+                selelcted_set_index = i
+                break
 
-        self.marker_set_uuid_label.setText(selected_timeline_uuid)
+        self.bankCombo.setCurrentIndex(selelcted_set_index)
+        self.marker_set_uuid_label.setText(current_set_uuid)
 
     
 

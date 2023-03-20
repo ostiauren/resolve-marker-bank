@@ -1,5 +1,7 @@
 TODO
 
+URGENT: Handle a sequence that has no markers. Right now it will crash if it does.
+
 Make a "Setup" button that pops up a setup window
     Add fields for configuring database destination, auto connect behaviour, ask before overwriting markers in timeline etc.
     The config data shuld be stored in a config file, so we need to make code for reading and writing such a file. Proabably store it as a dict or json.

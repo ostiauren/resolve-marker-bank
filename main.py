@@ -20,10 +20,7 @@ class dialog_text_input(QtWidgets.QDialog):
         button_2.clicked.connect(self.button_2_callback)
 
     def button_1_callback(self):
-        if self.main.rc.rename_bank_id(self.lineEdit.text(), self.main.marker_set.get_set_info()):
-            # Get updated markers and update the interface
-            self.main.get_markers_wrapper()
-            self.main.timeline_selected()
+        self.main.rename_marker_set(self.lineEdit.text())
         self.close()
 
     def button_2_callback(self):
@@ -40,7 +37,7 @@ class Ui(QtWidgets.QMainWindow):
         self.config_callbacks()
         self.qt_overrides()
 
-        self.rc = resolve_connection()
+        self.rc = resolve_connection() # Initialize resolve connection class
 
         self.project_changed()
 
@@ -48,6 +45,12 @@ class Ui(QtWidgets.QMainWindow):
         self.get_markers_wrapper()
         
         self.timeline_selected()
+
+    def rename_marker_set(self, new_name):
+        if self.rc.rename_bank_id(new_name, self.marker_set.get_set_info()):
+            # Get updated markers and update the interface
+            self.get_markers_wrapper()
+            self.timeline_selected()
 
 
     def project_changed(self):
@@ -93,7 +96,7 @@ class Ui(QtWidgets.QMainWindow):
 
 
     def get_markers_wrapper(self, selectedIndex=None):
-        self.marker_set = marker_set()
+        self.marker_set = marker_set() # Initialize the main marker set class
         if selectedIndex == None:
             timeline_markers = self.rc.get_markers()
         else:

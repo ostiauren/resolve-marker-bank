@@ -10,6 +10,8 @@ import ast
 import shutil
 import time
 
+
+
 def update_database(timelineFolder, marker_set):
     databaseLocation = globals.databaseRoot + "/" + globals.databaseFolder
     marker_set_UUID = marker_set['uuid']

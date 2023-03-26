@@ -1,6 +1,5 @@
 TODO
 
-URGENT: Handle a sequence that has no markers. Right now it will crash if it does.
 
 Make a "Setup" button that pops up a setup window
     Add fields for configuring database destination, auto connect behaviour, ask before overwriting markers in timeline etc.
@@ -78,3 +77,5 @@ Write files to database that are a combination of markers and marker_set_info
 Add a display of the timeline UUID of the selected timeline
 
 If the current set in Resolve does not have a name, pop up a window for giving it a name
+
+230326 Done - URGENT: Handle a sequence that has no markers. Right now it will crash if it does.

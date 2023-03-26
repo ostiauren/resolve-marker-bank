@@ -167,13 +167,20 @@ class resolve_connection():
         markers = self.timeline.GetMarkers()
         # Add bank_id_marker to the timeline. If timeline does not have any markers add one the first available frame 
         if globals.bank_id_marker_name not in list(dict_extract('name', markers)):
-            for count, i in enumerate(markers):
-                if count < i:
-                    if self.timeline.AddMarker(count, 'Red', globals.bank_id_marker_name, globals.default_new_marker_set_name, 1, str(uuid.uuid4())):
-                        print ("A bank ID marker was added")
-                    else:
-                        print ("A bank ID could not be added") 
-                    break
+            # Check if there are makers. If there are, check for and make bank_id_make. If there are no markers, just make a mank ID marker at index 0.
+            if markers:
+                for count, i in enumerate(markers):
+                    if count < i:
+                        if self.timeline.AddMarker(count, 'Red', globals.bank_id_marker_name, globals.default_new_marker_set_name, 1, str(uuid.uuid4())):
+                            print ("A bank ID marker was added")
+                        else:
+                            print ("A bank ID could not be added") 
+                        break
+            else:
+                if self.timeline.AddMarker(0, 'Red', globals.bank_id_marker_name, globals.default_new_marker_set_name, 1, str(uuid.uuid4())):
+                    print ("A bank ID marker was added")
+                else:
+                    print ("A bank ID could not be added")      
 
         #Get updated markers and set heading label on GUI
         return self.timeline.GetMarkers()
@@ -300,10 +307,14 @@ my_markers_tmp={5197: {'color': 'Blue', 'duration': 1, 'note': '', 'name': 'Mark
 my_markers_file={'position': 0, 'name': 'VFX', 'uuid': '3de75f15-a6e3-41d9-a6de-c198d974f85a', 'project_uuid': '4ab11e24-a6e3-41d9-a6de-d218d953f65b', 'set': my_markers_tmp}
 
 #globals.init()
+#project_Uuid = "4d577f17-a6e3-41d9-a6de-c198d973f84b"
+
 #marker_set = marker_set()
 #marker_set.input_marker_set(my_markers_resolve)
 #marker_set = marker_set(my_markers_resolve)
-#marker_set=marker_set(my_markers_file)
+
+#my_marker_set = marker_set()
+#my_marker_set = my_marker_set.input_marker_set(my_markers_file, project_Uuid)
 
 #print("+++++", marker_set.get_marker_set_for_database())
 #print("+++++", marker_set.get_list())

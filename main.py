@@ -98,9 +98,9 @@ class Ui(QtWidgets.QMainWindow):
             timeline_markers = self.rc.get_markers()
         else:
             timeline_markers = self.rc.get_markers(selectedIndex)
-        if timeline_markers == None: #If the selected timeline does not have a marker_bank_id
-            self.rc.add_bank_id() # Make bank_marker
-        if selectedIndex == None:
+        if timeline_markers == None: #If the selected timeline does not have a marker_bank_id 
+            a = self.rc.add_bank_id() # Make bank_marker
+        if selectedIndex == None: # Get the markers again, now with the marker_bank_id.
             timeline_markers = self.rc.get_markers()
         else:
             timeline_markers = self.rc.get_markers(selectedIndex)

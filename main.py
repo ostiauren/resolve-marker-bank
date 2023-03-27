@@ -47,11 +47,10 @@ class Ui(QtWidgets.QMainWindow):
         self.timeline_selected()
 
     def rename_marker_set(self, new_name):
-        if self.rc.rename_bank_id(new_name, self.marker_set.get_set_info()):
-            # Get updated markers and update the interface
-            self.get_markers_wrapper()
-            self.timeline_selected()
-
+        if self.marker_set.rename_set(new_name):
+            self.rc.commit_changes(self.marker_set)
+        self.get_markers_wrapper()
+        self.timeline_selected()
 
     def project_changed(self):
         self.project = self.rc.project

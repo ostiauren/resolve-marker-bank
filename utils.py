@@ -158,7 +158,7 @@ class resolve_connection():
                 if self.timeline.UpdateMarkerCustomData(i, str(uuid.uuid4())):
                     print ("A custom data field was updated")
                 else:
-                    print ("Somethin went wrong. A custom data field could not be updated")
+                    print ("Something went wrong. A custom data field could not be updated")
 
         if globals.bank_id_marker_name not in list(dict_extract('name', markers)):
             return None
@@ -188,13 +188,13 @@ class resolve_connection():
         return self.timeline.GetMarkers()
 
     def commit_changes(self, marker_set):
-        new_name = marker_set.marker_set_info.get('new_name')
-        print ("new_name", new_name)
-        if new_name:
+        # Rename set case        
+        if marker_set.marker_set_info.get('new_name'):
 
+            new_name = marker_set.marker_set_info.get('new_name')
             if new_name == marker_set.marker_set_info['name']:
                 print ("The new marker set name ('%s') is the same as the old. No change made." % new_name)
-                return
+                return False
             else:
                 print ("Renameing the marker set from '%s' to '%s'." % (marker_set.marker_set_info['name'], new_name))
                 set_marker = self.timeline.GetMarkerByCustomData(marker_set.marker_set_info['uuid'])
@@ -203,7 +203,35 @@ class resolve_connection():
                     print ("Marker deleted")
                 if self.timeline.AddMarker(marker_set.marker_set_info['position'], set_marker['color'], set_marker['name'], set_marker['note'], set_marker['duration'], set_marker['customData']):
                     print ("Marker added")
-                return True    
+                marker_set.marker_set_info.pop('new_name')
+                return True
+
+        # Update markers
+        print (marker_set.markers)
+        for i in marker_set.markers:
+            update = False
+            if marker_set.markers[i].get('new_color'):
+                marker_set.markers[i]['color'] = marker_set.markers[i].get('new_color')
+                marker_set.markers[i].pop('new_color')
+                update = True
+            if marker_set.markers[i].get('new_duration'):
+                marker_set.markers[i]['duration'] = marker_set.markers[i].get('new_duration')
+                marker_set.markers[i].pop('new_duration')
+                update = True
+            if marker_set.markers[i].get('new_note'):
+                marker_set.markers[i]['note'] = marker_set.markers[i].get('new_note')
+                marker_set.markers[i].pop('new_note')
+                update = True
+            if marker_set.markers[i].get('new_name'):
+                marker_set.markers[i]['name'] = marker_set.markers[i].get('new_name')
+                marker_set.markers[i].pop('new_name')
+                update = True
+
+            if update == True:
+                if self.timeline.DeleteMarkerByCustomData(marker_set.markers[i].get('customData')):
+                    print ("Marker deleted")
+                if self.timeline.AddMarker(i, marker_set.markers[i].get('color'), marker_set.markers[i].get('name'), marker_set.markers[i].get('note'), marker_set.markers[i].get('duration'), marker_set.markers[i].get('customData')):
+                    print ("Marker added")
 
 def get_current_timeline(self):
     self.timeline = self.project.GetCurrentTimeline()
@@ -301,9 +329,13 @@ class marker_set:
         self.markers[frame].update({'name': name})
 
     def rename_set(self, new_name):
-        print ("rename_set 1")
         self.marker_set_info['new_name'] = new_name
         return True
+
+    def update_marker(self, update_marker, frame):
+        marker = self.get_marker(frame)
+        for key in update_marker:
+            marker['new_' + key] = update_marker[key]
 
     def get_marker(self, frame):
         return self.markers[frame]

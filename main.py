@@ -215,6 +215,16 @@ class Ui(QtWidgets.QMainWindow):
             self.tableWidget.setItem(row, 3, QtWidgets.QTableWidgetItem(i[3]))
             self.tableWidget.setItem(row, 4, QtWidgets.QTableWidgetItem(i[4]))
             self.tableWidget.setItem(row, 5, QtWidgets.QTableWidgetItem(i[5]))
+
+        # Test code for combo box inside a cell
+        '''
+        combo_box_options = ["Option 1","Option 2","Option 3"]
+        a = QtWidgets.QComboBox()
+        #self.tableWidget.setIndexWidget(self.tableWidget.model().index(3, 1), QtWidgets.QPushButton("Kill"))
+        self.tableWidget.setIndexWidget(self.tableWidget.model().index(3, 2), a)
+        a.addItems(combo_box_options)
+        '''
+        
         self.tableWidget.resizeRowsToContents()
 
     def qt_overrides(self):
